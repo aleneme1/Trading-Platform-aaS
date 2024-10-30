@@ -1,0 +1,36 @@
+#cloud-config
+
+# Atualiza os repositórios e pacotes do sistema
+package_update: true
+package_upgrade: true
+
+# Pacotes essenciais para o ambiente MT5 e Guacamole
+packages:
+  - software-properties-common
+  - wget
+  - wine
+  - xorg
+  - xfce4            # Ambiente gráfico leve
+  - xfce4-goodies    # Plugins adicionais para o XFCE
+  - xrdp             # Protocolo RDP para acessar a área de trabalho
+
+# Cria o diretório para armazenar o MT5 e baixa o instalador
+runcmd:
+  # Adiciona o repositório do Wine para obter a última versão
+  - add-apt-repository -y ppa:ubuntu-wine/ppa
+  - apt-get update
+  - apt-get install -y wine
+
+  # Baixa o instalador do MT5 no diretório /opt/mt5
+  - mkdir -p /opt/mt5
+  - "wget <URL_DO_INSTALADOR_MT5> -O /opt/mt5/mt5setup.exe"
+
+  # Executa o instalador do MT5 via Wine
+  - "wine /opt/mt5/mt5setup.exe /silent" # Modo silencioso para automatizar a instalação
+
+  # Ativa o serviço xrdp para acesso remoto
+  - systemctl enable xrdp
+  - systemctl start xrdp
+
+  # Configurações adicionais de Wine, se necessário
+  - winecfg # Isso pode ser customizado para configurar drivers ou ajustes específicos
